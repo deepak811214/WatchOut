@@ -1,0 +1,25 @@
+{
+  "name": "watchout",
+  "version": "1.0.0",
+  "description": "Table Availablity App",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/log10/WatchOut.git"
+  },
+  "keywords": [
+    "NodeJs"
+  ],
+  "author": "Lokesh K",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/log10/WatchOut/issues"
+  },
+  "homepage": "https://github.com/log10/WatchOut#readme",
+  "dependencies":{
+  	"restify": ">=4.3.0"
+  }
+}
