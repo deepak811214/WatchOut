@@ -41,7 +41,7 @@ server.on('uncaughtException', function (req, res, route, err) {
   // console.log('******* Begin Error *******');
   // console.log(route);
   // console.log('*******');
-  // console.log(err.stack);
+  console.log(err.stack);
   // console.log('******* End Error *******');
   if (!res.headersSent) {
     return res.send(500, { ok : false });
