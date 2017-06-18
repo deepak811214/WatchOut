@@ -1,1 +1,4 @@
+*.swp
+.editorconfig
 node_modules/
+
