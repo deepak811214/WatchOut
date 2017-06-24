@@ -19,6 +19,7 @@ module.exports = (server) => {
 	}, multipleEventsPost);
 };
 
+var utils = require('../common/util.js');
 var mongoDao = require('../dao/eventDao.js');
 var log = require('../logger/logger.js');
 const SINGLE_EVENT_POST = 'singleEventPost';
@@ -26,7 +27,7 @@ const MULTIPLE_EVENTS_POST = 'multipleEventsPost';
 
 var singleEventPost = (req, res, next) => {
 	if(req.params.event) {
-		mongoDao.addAnEvent(req.params.event, (req.params.eventTime) ? new Date(req.params.eventTime) : new Date(),
+		mongoDao.addAnEvent(req.params.event, utils.getEventTime(req.params.eventTime),
 			() => {
 				res.send(201);
 				next(false);
@@ -43,14 +44,14 @@ singleEventPost.handlerName = SINGLE_EVENT_POST;
 
 var multipleEventsPost = (req, res, next) => {
 	if(req.body) {
-		let eventLog = new Array({});
+		let eventLogs = new Array({});
 		for(var event of req.body) {
-			eventLog.push({
+			eventLogs.push({
 				'event': event.event,
-				'eventTime': new Date(event.eventTime)
+				'eventTime': utils.getEventTime(event.eventTime)
 			});
 		}
-		mongoDao.addAnArrayOfEvents(eventLog, () => {
+		mongoDao.addAnArrayOfEvents(eventLogs, () => {
 				res.send(201);
 				next(false);
 			}, err => {

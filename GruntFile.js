@@ -10,7 +10,7 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     jshint: {
-      all: ['dao/**/*.js','routes/**/*.js','GruntFile.js','app.js','tests/**/*.js'],
+      all: ['dao/**/*.js','routes/**/*.js','GruntFile.js','app.js','tests/**/*.js','common/**/*.js'],
       options : {
         esnext: true,
         node: true
