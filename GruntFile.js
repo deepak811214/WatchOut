@@ -10,7 +10,7 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     jshint: {
-      all: ['dao/**/*.js','routes/**/*.js','GruntFile.js','app.js','tests/**/*.js','common/**/*.js'],
+      all: ['dao/**/*.js','routes/**/*.js','GruntFile.js','app.js','tests/**/*.js','common/**/*.js', 'websocket/**/*.js'],
       options : {
         esnext: true,
         node: true
@@ -18,7 +18,7 @@ module.exports = function(grunt) {
     },
     watch: {
       scripts: {
-        files: ['dao/**/*.js','routes/**/*.js','GruntFile.js','app.js','tests/**/*.js'],
+        files: ['dao/**/*.js','routes/**/*.js','GruntFile.js','app.js','tests/**/*.js','common/**/*.js', 'websocket/**/*.js'],
         tasks: ['jshint'],
         options: {
           interrupt: true,

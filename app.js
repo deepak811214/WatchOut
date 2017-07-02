@@ -59,3 +59,5 @@ server.listen(8000, function () {
   log.info('%s listening at %s', server.name, server.url);
 });
 
+var websocketBroadcast = require('./websocket/broadcast.js');
+websocketBroadcast.openWebsocket(server);

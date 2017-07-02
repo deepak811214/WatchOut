@@ -1,8 +1,8 @@
 'use strict';
 
 module.exports = {
-	// gets people count between the given start and end time
-	getPeopleCount: (startTime, endTime, callBack) => {
+    // gets people count between the given start and end time from events log
+	getPeopleCountFromEvents: (startTime, endTime, callBack) => {
 		mongoDo((db, next) => {
 			var peopleCount = {
 				entryCount: 0,
@@ -10,36 +10,7 @@ module.exports = {
 			};
 			var cursor = db.collection(LOG).aggregate([
 				{ $match: { 'eventTime': { $gte: startTime, $lte :endTime }} },
-		        { $group: { '_id': '$event' , 'count': { $sum: 1 } } }
-		    ]);
-		    cursor.toArray((err, events) => {
-		       	assert(err);
-				for(var event of events) {
-		       		switch(event._id) {
-		       			case 'in':
-		       				peopleCount.entryCount = event.count;
-		       				break;
-		       			case 'out':
-		       				peopleCount.exitCount = event.count;
-		       				break;
-		       			default: log.info("unidentified event!");
-		       		}
-		       	}
-		       	next();
-				callBack(peopleCount);
-		    });
-		});
-	},
-	// gets people count between the given start and end time from aggregate event log
-	getPeopleCountFromAggregateEvents: (startTime, endTime, callBack) => {
-		mongoDo((db, next) => {
-			var peopleCount = {
-				entryCount: 0,
-				exitCount: 0
-			};
-			var cursor = db.collection(AGGREGATE_LOG).aggregate([
-				{ $match: { 'eventTime': { $gte: startTime, $lte :endTime }} },
-		        { $group: { '_id': null , 'entryCount': { $sum: '$in' }, 'exitCount': {$sum : '$out'} } }
+		        { $group: { '_id': null , 'entryCount': { $sum: '$entryCount' }, 'exitCount': {$sum : '$exitCount'} } }
 		    ]);
 		    cursor.toArray((err, resultSet) => {
 		       	assert(err);
@@ -52,13 +23,21 @@ module.exports = {
 		    });
 		});
 	},
-	// adds an event into the log 
-	addAnEvent: (event, eventTime, callBack, errCallBack) => {
+	// gets people event log between the given start and end time from events log
+	getPeopleEventLog: (startTime, endTime, callBack) => {
 		mongoDo((db, next) => {
-			db.collection(LOG).insertOne({
-				'event' : event,
-				'eventTime' : eventTime
-			}, (err, result) => {
+			var cursor = db.collection(LOG).find({'eventTime': { $gte: startTime, $lte :endTime }}, {'_id':0});
+		    cursor.toArray((err, resultSet) => {
+		       	assert(err);
+		       	next();
+				callBack(resultSet);
+		    });
+		});
+	},
+	// adds an event into the log 
+	addAnEvent: (eventLog, callBack, errCallBack) => {
+		mongoDo((db, next) => {
+			db.collection(LOG).insertOne(eventLog, (err, result) => {
 				assert(err);
 				next();
 				if(result.insertedCount === 1) {
@@ -70,42 +49,12 @@ module.exports = {
 		});
 	},
 	// add array of events
-	addAnArrayOfEvents: (events, callBack, errCallBack) => {
-		mongoDo((db, next) => {
-			db.collection(LOG).insertMany(events, (err, result) => {
+	addAnArrayOfEvents: (eventLogs, callBack, errCallBack) => {
+		mongoDo((db, next) => {	
+			db.collection(LOG).insertMany(eventLogs, (err, result) => {
 				assert(err);
 				next();
-				if(events.length === result.insertedCount) {
-					callBack();
-				} else {
-					errCallBack(result.insertedCount + 'records inserted!');
-				}
-			});
-		});
-	},
-	// adds an aggregate event into the log 
-	addAnAggregateEvent: (aggregateEventLog, callBack, errCallBack) => {
-		mongoDo((db, next) => {
-			console.log(aggregateEventLog);
-			db.collection(AGGREGATE_LOG).insertOne(aggregateEventLog, (err, result) => {
-				assert(err);
-				next();
-				if(result.insertedCount === 1) {
-				 	callBack();
-				} else {
-					errCallBack('Failed to save the data!');
-				}
-			});
-		});
-	},
-	// add array of aggregate events
-	addAnArrayOfAggregateEvents: (aggregateEventLogs, callBack, errCallBack) => {
-		mongoDo((db, next) => {
-			console.log(aggregateEventLogs);	
-			db.collection(AGGREGATE_LOG).insertMany(aggregateEventLogs, (err, result) => {
-				assert(err);
-				next();
-				if(aggregateEventLogs.length === result.insertedCount) {
+				if(eventLogs.length === result.insertedCount) {
 					callBack();
 				} else {
 					errCallBack(result.insertedCount + 'records inserted!');
@@ -119,7 +68,6 @@ module.exports = {
 var log = require('../logger/logger.js');
 var dao = require('./dao.js');
 const LOG = 'log';
-const AGGREGATE_LOG = 'aggregatedLog';
 
 var mongoDo = dao.mongoDo.bind(dao);
 var assert = dao.assert.bind(dao);
