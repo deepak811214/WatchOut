@@ -30,6 +30,7 @@ server = restify.createServer({
   }
 });
 
+server.use(restify.CORS());
 server.use(restify.bodyParser({ mapParams: false }));
 server.use(restify.queryParser());
 server.use(restify.gzipResponse());
