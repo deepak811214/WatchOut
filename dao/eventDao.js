@@ -10,7 +10,7 @@ module.exports = {
 			};
 			var cursor = db.collection(LOG).aggregate([
 				{ $match: { 'eventTime': { $gte: startTime, $lte :endTime }} },
-		        { $group: { '_id': null , 'entryCount': { $sum: '$entryCount' }, 'exitCount': {$sum : '$exitCount'} } }
+		        { $group: { '_id': null, 'entryCount': { $sum: '$entryCount' }, 'exitCount': {$sum : '$exitCount'} } }
 		    ]);
 		    cursor.toArray((err, resultSet) => {
 		       	assert(err);
@@ -20,6 +20,22 @@ module.exports = {
 		       	}
 		       	next();
 				callBack(peopleCount);
+		    });
+		});
+	},
+	// gets aggregated people count between the given start and end time from events log
+	getAggregatedPeopleCount: (startTime, endTime, callBack) => {
+		mongoDo((db, next) => {
+			var cursor = db.collection(LOG).aggregate([
+				{ $match: { 'eventTime': { $gte: startTime, $lte :endTime }} },
+		        { $group: { '_id': { '$hour': '$eventTime' } , 'entryCount': { $sum: '$entryCount' }, 'exitCount': {$sum : '$exitCount'} } },
+		        { $project: { '_id': 0, 'eventTime': '$_id', 'entryCount': 1, 'exitCount': 1 } }
+		    
+		    ]);
+		    cursor.toArray((err, resultSet) => {
+		       	assert(err);
+		       	next();
+				callBack(resultSet);
 		    });
 		});
 	},

@@ -30,7 +30,12 @@ server = restify.createServer({
   }
 });
 
-server.use(restify.CORS());
+server.use((req,res,next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "X-Requested-With");
+    return next();
+  }
+);
 server.use(restify.bodyParser({ mapParams: false }));
 server.use(restify.queryParser());
 server.use(restify.gzipResponse());
@@ -56,7 +61,7 @@ server.on('after', restify.auditLogger({ log: log }));
 routes(server);
 
 console.log('Server started.');
-server.listen(8000, function () {
+server.listen(80, function () {
   log.info('%s listening at %s', server.name, server.url);
 });
 
